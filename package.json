@@ -1,0 +1,23 @@
+{
+  "name": "pari",
+  "version": "0.1.0",
+  "description": "A simple parser combinator.",
+  "type": "module",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0xc0Der/pari.git"
+  },
+  "keywords": [
+    "parser",
+    "combinators",
+    "parsers",
+    "parser-combinator"
+  ],
+  "author": "0xc0Der",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/0xc0Der/pari/issues"
+  },
+  "homepage": "https://github.com/0xc0Der/pari#readme"
+}
