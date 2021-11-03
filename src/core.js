@@ -1,4 +1,4 @@
-import Parser from './parser.js';
+import { Parser } from './parser.js';
 
 export const char = char => new Parser(state => {
     const idx = state.idx || 0, curChar = state.input[idx];

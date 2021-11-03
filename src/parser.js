@@ -1,4 +1,4 @@
-export default class Parser {
+export class Parser {
 
     constructor(fn) {
         this.process = fn;
