@@ -9,8 +9,7 @@ export const char = char => new Parser(state => {
         res: curChar
     } : {
         ...state,
-        err: true,
-        errMsg: `can't find '${char}' at '${idx}'.`
+        err: true
     };
 });
 
@@ -32,7 +31,7 @@ export const or = (...parsers) => new Parser(state => {
         if(!newState.err) return newState;
     }
 
-    return { ...state, err: true, errMsg: 'or found no match' };
+    return { ...state, err: true };
 });
 
 export const zeroOrMore = parser => new Parser(state => {
@@ -44,6 +43,12 @@ export const zeroOrMore = parser => new Parser(state => {
     } : zeroOrMore(parser).map(state => {
         return { ...state, res: [result.res, ...state.res] };
     }).process(result);
+});
+
+export const zeroOrOne = parser => new Parser(state => {
+  const result = parser.process(state);
+
+  return result.err ? { ...state, res: '' } : result;
 });
 
 export const lazy = func => new Parser(state => state).map(state => {

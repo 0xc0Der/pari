@@ -17,6 +17,10 @@ export class Parser {
         }));
     }
 
+    mapErr(func) {
+        return this.map(func, true);
+    }
+
     chain(parser) {
         return new Parser(state => {
             return parser.process(this.process(state));

@@ -26,6 +26,9 @@ import {
   spaceArround,
   separatedBy,
   between,
+  zeroOrOne,
+  spaceBefore,
+  spaceAfter,
   lazy
 } from 'pari';
 
@@ -45,5 +48,6 @@ const myParser = new Parser(state => {
 
 Parser.chain(parser) // to chain another parser to it.
 Parser.map(state => {})   // to do extra operations on the result.
+Parser.mapErr(state => {}) // same as map but on error.
 
 ```

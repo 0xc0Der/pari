@@ -1,5 +1,7 @@
 import { zeroOrMore, sequence, char, or } from './core.js';
 
+const spaces = zeroOrMore(char('[ \t\n]'));
+
 export const between = (a, c) => b => sequence(a, b, c);
 
 export const oneOrMore = p => sequence(p, zeroOrMore(p))
@@ -9,10 +11,11 @@ export const oneOrMore = p => sequence(p, zeroOrMore(p))
 
 export const separatedBy = a => b => sequence(b, zeroOrMore(sequence(a, b)))
 .map(state => {
-    return { ...state, res: state.res.flat(2)};
+    return { ...state, res: state.res.flat(2) };
 });
 
-export const spaceArround = between(
-    zeroOrMore(char('[ \n\t]')),
-    zeroOrMore(char('[ \n\t]'))
-);
+export const spaceArround = between(spaces, spaces);
+
+export const spaceAfrer = a => sequence(a, spaces);
+
+export const spaceBefore = a => sequence(spaces, a);
