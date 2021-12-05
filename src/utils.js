@@ -16,6 +16,6 @@ export const separatedBy = a => b => sequence(b, zeroOrMore(sequence(a, b)))
 
 export const spaceArround = between(spaces, spaces);
 
-export const spaceAfrer = a => sequence(a, spaces);
+export const spaceAfter = a => sequence(a, spaces);
 
 export const spaceBefore = a => sequence(spaces, a);
