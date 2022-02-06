@@ -1,24 +1,8 @@
-export class Parser {
+import State from './state.js';
 
-    constructor(fn) {
-        this.process = fn;
-    }
-
-    run(input) {
-        return this.process({ input, err: false });
-    }
-
-    map(func, onErr = false) {
-        return this.chain(new Parser(state => {
-            return state.err ^ onErr ? state : {
-                ...state,
-                ...func(state)
-            };
-        }));
-    }
-
-    mapErr(func) {
-        return this.map(func, true);
+export default class Parser {
+    constructor(process) {
+        this.process = process;
     }
 
     chain(parser) {
@@ -27,4 +11,27 @@ export class Parser {
         });
     }
 
+    next(fn, status) {
+        return this.chain(
+            new Parser(state => {
+                return state.status & status ? fn(state) : state;
+            })
+        );
+    }
+
+    ok(fn) {
+        return this.next(fn, State.OK);
+    }
+
+    nok(fn) {
+        return this.next(fn, State.ERROR | State.WARNING);
+    }
+
+    warning(fn) {
+        return this.next(fn, State.WARNING);
+    }
+
+    error(fn) {
+        return this.next(fn, State.ERROR);
+    }
 }

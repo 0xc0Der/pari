@@ -1,56 +1,33 @@
-import { Parser } from './parser.js';
+import Parser from './parser.js';
+import State from './state.js';
 
-export const char = char => new Parser(state => {
-    const idx = state.idx || 0, curChar = state.input[idx];
+export const char = char =>
+    new Parser(state => {
+        const match = new RegExp(`^${char}$`).test(state.charAt(state.index));
 
-    return RegExp(`^${char}$`).test(curChar) ? {
-        ...state,
-        idx: idx + 1,
-        res: curChar
-    } : {
-        ...state,
-        err: true
-    };
-});
+        return state
+            .withStatus(1 << (!match + !match))
+            .withIndex(state.index + match);
+    });
 
-export const sequence = (...parsers) => new Parser(state => {
-    let result = state, res = [];
+export const firstOf = ([p, ...ps]) =>
+    new Parser(state => {
+        const next = ps.length === 1 ? ps[0] : firstOf(ps);
 
-    for(let parser of parsers) {
-        result = parser.process(result);
-        res.push(result.res);
-    }
+        return p.nok(() => next.process(state)).process(state.clone());
+    });
 
-    return { ...result, res };
-});
+export const sequence = ([p, ...ps]) =>
+    p.ok(state => {
+        const next = ps.length === 1 ? ps[0] : sequence(ps);
 
-export const or = (...parsers) => new Parser(state => {
-    for(let parser of parsers) {
-        const newState = parser.process(state);
+        return next.process(state);
+    });
 
-        if(!newState.err) return newState;
-    }
+export const zeroOrOne = p =>
+    new Parser(state => p.error(() => state).process(state.clone()));
 
-    return { ...state, err: true };
-});
+export const zeroOrMore = p =>
+    zeroOrOne(p.ok(state => zeroOrMore(p).process(state)));
 
-export const zeroOrMore = parser => new Parser(state => {
-    const result = parser.process(state);
-
-    return result.err ? {
-        ...state,
-        res: []
-    } : zeroOrMore(parser).map(state => {
-        return { ...state, res: [result.res, ...state.res] };
-    }).process(result);
-});
-
-export const zeroOrOne = parser => new Parser(state => {
-  const result = parser.process(state);
-
-  return result.err ? { ...state, res: '' } : result;
-});
-
-export const lazy = func => new Parser(state => state).map(state => {
-    return func().process(state);
-});
+export const oneOrMore = p => p.ok(state => zeroOrMore(p).process(state));
