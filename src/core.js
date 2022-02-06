@@ -1,56 +1,79 @@
-import { Parser } from './parser.js';
+import Parser from './parser.js';
 
-export const char = char => new Parser(state => {
-    const idx = state.idx || 0, curChar = state.input[idx];
+export const char = chr =>
+    new Parser(state => {
+        const { input, idx = 0 } = state;
+        const curChr = input[idx];
 
-    return RegExp(`^${char}$`).test(curChar) ? {
-        ...state,
-        idx: idx + 1,
-        res: curChar
-    } : {
-        ...state,
-        err: true
-    };
-});
+        return RegExp(`^${chr}$`).test(curChr)
+            ? {
+                  ...state,
+                  idx: idx + 1,
+                  res: curChr
+              }
+            : {
+                  ...state,
+                  err: true
+              };
+    });
 
-export const sequence = (...parsers) => new Parser(state => {
-    let result = state, res = [];
+export const sequence = (...parsers) =>
+    new Parser(state => {
+        const res = [];
 
-    for(let parser of parsers) {
-        result = parser.process(result);
-        res.push(result.res);
-    }
+        for (let parser of parsers) {
+            state = parser.process(state);
 
-    return { ...result, res };
-});
+            if (state.err) {
+                break;
+            }
 
-export const or = (...parsers) => new Parser(state => {
-    for(let parser of parsers) {
+            res.push(state.res);
+        }
+
+        return { ...state, res };
+    });
+
+export const or = (...parsers) =>
+    new Parser(state => {
+        for (let parser of parsers) {
+            const curState = parser.process(state);
+
+            if (!curState.err) {
+                return curState;
+            }
+        }
+
+        return { ...state, err: true };
+    });
+
+export const zeroOrMore = parser =>
+    new Parser(state => {
+        let curState = state;
+        const res = [];
+
+        while (true) {
+            curState = parser.process(state);
+
+            if (curState.err) {
+                break;
+            }
+
+            state = curState;
+            res.push(state.res);
+        }
+
+        return { ...state, res };
+    });
+
+export const zeroOrOne = parser =>
+    new Parser(state => {
         const newState = parser.process(state);
 
-        if(!newState.err) return newState;
-    }
+        return newState.err ? state : newState;
+    });
 
-    return { ...state, err: true };
-});
-
-export const zeroOrMore = parser => new Parser(state => {
-    const result = parser.process(state);
-
-    return result.err ? {
-        ...state,
-        res: []
-    } : zeroOrMore(parser).map(state => {
-        return { ...state, res: [result.res, ...state.res] };
-    }).process(result);
-});
-
-export const zeroOrOne = parser => new Parser(state => {
-  const result = parser.process(state);
-
-  return result.err ? { ...state, res: '' } : result;
-});
-
-export const lazy = func => new Parser(state => state).map(state => {
-    return func().process(state);
-});
+export const lazy = func =>
+    new Parser(state => state).next(state => {
+        return func().process(state);
+    });
