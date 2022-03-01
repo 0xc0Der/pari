@@ -5,15 +5,13 @@ A simple parser combinator.
 ## usage
 
 ```js
-
 import { char, zeroOrMore } from 'pari';
 
 // char takes a Regex that matches one character.
 const charResult = char('[a-z]').run('s');
 
-// parsers may take other parsers as arguments
+// parsers take other parsers as arguments
 const zomResult = zeroOrMore(char('[a-z]')).run('string');
-
 ```
 
 ## available parsers
@@ -22,20 +20,19 @@ const zomResult = zeroOrMore(char('[a-z]')).run('string');
 import {
   char,
   zeroOrMore,
-  sequence,
   oneOrMore,
-  spaceArround,
+  zeroOrOne,
+  sequence,
   separatedBy,
   between,
-  zeroOrOne,
+  spaceArround,
   spaceBefore,
   spaceAfter,
   lazy
 } from 'pari';
-
 ```
 
-## define your parser
+## define a parser
 
 ```js
 import { Parser } from 'pari';
@@ -45,18 +42,15 @@ const myParser = new Parser(state => {
   return newState;
 });
 
-// parser has three methods
+const newParser = myParser.chain(anotherParser); // chain another parser.
 
-someParser.chain(anotherParser); // chain another parser.
-
-someParser.map(state => {
-  // do extra operations on the result.
-  return newState;
-});
-
-someParser.mapErr(state => {
-  // same as `map` but on error.
-  return newState;
-});
-
+const newParser = myParser
+  .next(state => {
+    // do extra operations on the result.
+    return newState;
+  })
+  .error(state => {
+    // called on error.
+    return newState;
+  });
 ```
