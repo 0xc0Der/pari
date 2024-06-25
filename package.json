@@ -1,7 +1,7 @@
 {
   "name": "pari",
-  "version": "0.2.1",
-  "description": "A simple parser combinator.",
+  "version": "1.0.0",
+  "description": "More than a simple parser combinator.",
   "type": "module",
   "main": "index.js",
   "repository": {
